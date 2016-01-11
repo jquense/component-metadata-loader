@@ -35,8 +35,11 @@
     "react-component-metadata": "^2.0.0"
   },
   "devDependencies": {
+    "babel": "^5.8.34",
+    "memory-fs": "^0.3.0",
     "mkdirp": "^0.5.1",
     "mocha": "^2.3.4",
-    "rimraf": "^2.4.4"
+    "rimraf": "^2.4.4",
+    "webpack": "^1.12.10"
   }
 }

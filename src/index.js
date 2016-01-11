@@ -77,39 +77,56 @@ function applyPropDoclets(props, propName){
   }
 }
 
-module.exports =  () => {};
+function getOptions(ctx) {
+  let loaderOptions = loaderUtils.parseQuery(ctx.query);
+  let globalOptions = (ctx.options || {}).componentMetadata;
 
-module.exports.pitch = function() {
-  let callback = this.async();
-  let loaderOptions = loaderUtils.parseQuery(this.query);
-  let globalOptions = (this.options || {}).componentMetadata;
+  return defaults(loaderOptions, globalOptions);
+}
+
+module.exports = function(contents) {
+  this.value = [this.data.metadata]
+  return 'module.exports = ' + JSON.stringify(this.data.metadata)
+};
+
+module.exports.pitch = function(_, __, data) {
+  let callback = this.async()
+    , options = getOptions(this);
 
   this.cacheable();
-  this.addDependency(path.resolve(this.resourcePath));
-
-  loaderOptions = defaults(loaderOptions, globalOptions);
 
   fs.readFile(this.resourcePath, 'utf-8', (err, content) => {
-    if (err) return callback(err);
+    if (err) return callback(err)
+    let json = parseMetaData(content, this.resourcePath, options);
 
-    let components = metadata(content, loaderOptions) || {};
+    data.metadata = json
 
-    Object.keys(components).forEach(key => {
-      let component = components[key];
+    if (options.pitch) {
+      this.value = [ json ]
+      callback(null, 'module.exports = ' + JSON.stringify(json))
+    }
+    else callback()
+  })
+}
 
-      parseDoclets(component, loaderOptions);
+function parseMetaData(content, resourcePath, loaderOptions) {
+  let components = metadata(content, loaderOptions) || {};
 
-      if (loaderOptions.parse)
-        loaderOptions.parse(component, key, loaderOptions, this.resourcePath)
+  Object.keys(components).forEach(key => {
+    let component = components[key];
 
-      Object.keys(component.props).forEach(propName => {
-        let prop = component.props[propName];
+    parseDoclets(component, loaderOptions);
 
-        parseDoclets(prop, loaderOptions);
-        applyPropDoclets(component.props, propName);
-      });
+    if (loaderOptions.parse)
+      loaderOptions.parse(component, key, loaderOptions, resourcePath)
+
+    Object.keys(component.props).forEach(propName => {
+      let prop = component.props[propName];
+
+      parseDoclets(prop, loaderOptions);
+      applyPropDoclets(component.props, propName);
     });
-
-    callback(null, 'module.exports = ' + JSON.stringify(components));
   });
+
+  return components;
 };
