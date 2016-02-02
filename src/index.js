@@ -10,8 +10,12 @@ marked.setOptions({
   xhtml: true,
   highlight: function(code, lang) {
     let prism = require('./prism-jsx');
-    lang = lang && lang.indexOf('language-') === 0 ? lang.replace('language-', '') : lang;
-    return prism.highlight(code, prism.languages[lang]);
+    if (lang) {
+      lang = lang.indexOf('language-') === 0 ? lang.replace('language-', '') : lang;
+
+      if (lang)
+        return prism.highlight(code, prism.languages[lang]);
+    }
   }
 });
 
