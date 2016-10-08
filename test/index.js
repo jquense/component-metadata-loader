@@ -19,8 +19,14 @@ describe('component-metadata-loader', function () {
         alias: 'TestSubject'
       });
 
-      assert.deepEqual(component.props.id.doclets, {
+      let props = component.props;
+      assert.deepEqual(props.id.doclets, {
         required: true
+      });
+
+      let nested = props.complex.type.value;
+      assert.deepEqual(nested.complex.type.value.foo.doclets, {
+        type: 'special'
       });
 
       done()

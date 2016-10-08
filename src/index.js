@@ -113,8 +113,22 @@ module.exports.pitch = function(_, __, data) {
   })
 }
 
+
 function parseMetaData(content, resourcePath, loaderOptions) {
   let components = metadata(content, loaderOptions) || {};
+
+  function processProps(props) {
+    Object.keys(props).forEach(propName => {
+      let prop = props[propName];
+      let type = prop.type
+      parseDoclets(prop, loaderOptions);
+      applyPropDoclets(props, propName);
+
+      if (type && type.name === 'object' && type.value) {
+        processProps(type.value)
+      }
+    });
+  }
 
   Object.keys(components).forEach(key => {
     let component = components[key];
@@ -124,12 +138,7 @@ function parseMetaData(content, resourcePath, loaderOptions) {
     if (loaderOptions.parse)
       loaderOptions.parse(component, key, loaderOptions, resourcePath)
 
-    Object.keys(component.props).forEach(propName => {
-      let prop = component.props[propName];
-
-      parseDoclets(prop, loaderOptions);
-      applyPropDoclets(component.props, propName);
-    });
+    processProps(component.props)
   });
 
   return components;

@@ -26,7 +26,22 @@ TestComponent.propTypes = {
    *
    * @required
    */
-  id: PropTypes.number()
+  id: PropTypes.number(),
+
+  complex: PropTypes.shape({
+    /**
+     * with `markdown` here
+     */
+    foo: PropTypes.string.isRequired,
+
+    complex: PropTypes.shape({
+      /**
+       * description
+       * @type special
+       */
+      foo: PropTypes.string.isRequired,
+    })
+  })
 }
 
 TestComponent.defaultProps = {
