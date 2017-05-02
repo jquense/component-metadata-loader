@@ -81,21 +81,15 @@ function applyPropDoclets(props, propName){
   }
 }
 
-function getOptions(ctx) {
-  let loaderOptions = loaderUtils.parseQuery(ctx.query);
-  let globalOptions = (ctx.options || {}).componentMetadata;
 
-  return defaults(loaderOptions, globalOptions);
-}
 
 module.exports = function(contents) {
-  this.value = [this.data.metadata]
   return 'module.exports = ' + JSON.stringify(this.data.metadata)
 };
 
 module.exports.pitch = function(_, __, data) {
   let callback = this.async()
-    , options = getOptions(this);
+    , options = loaderUtils.getOptions(this);
 
   this.cacheable();
 
@@ -106,7 +100,6 @@ module.exports.pitch = function(_, __, data) {
     data.metadata = json
 
     if (options.pitch) {
-      this.value = [ json ]
       callback(null, 'module.exports = ' + JSON.stringify(json))
     }
     else callback()
