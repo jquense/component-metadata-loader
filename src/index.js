@@ -89,7 +89,7 @@ module.exports = function(contents) {
 
 module.exports.pitch = function(_, __, data) {
   let callback = this.async()
-    , options = loaderUtils.getOptions(this);
+  let options = loaderUtils.getOptions(this) || {};
 
   this.cacheable();
 
